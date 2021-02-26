@@ -11,7 +11,7 @@ jobs:
       with:
         node-version: 12.21.0
     - name: install & test
-      run: npm cit
+      run: npm ci
     - name: serverless deploy
       uses: tegud/serverless-github-action@1.66.0
       with:
