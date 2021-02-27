@@ -53,7 +53,7 @@ app.message('list devices', async ({ say }) => {
 });
 
 app.action({ callback_id: 'toggle-device' }, async ({ body, action, ack, say }) => {
-  console.log(action);
+  const [deviceId, targetStatus] = action.value.split('::');
   console.log(body);
   // await say(`<@${body.user.id}> clicked the button`);
 
