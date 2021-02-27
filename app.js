@@ -60,7 +60,7 @@ app.message('list devices', async ({ say }) => {
 
 app.action('button_click', async ({ body, ack, say }) => {
   console.log(body);
-  await say(`<@${body.user.id}> clicked the button`);
+  // await say(`<@${body.user.id}> clicked the button`);
 
   // Acknowledge the action after say() to exit the Lambda process
   await ack();
