@@ -6,6 +6,7 @@ let tplink;
 
 const loginIfRequired = async () => {
   if (!tplink) {
+    console.log('Logging in with TPLink');
     tplink = await login(process.env.KASA_USERNAME, process.env.KASA_PASSWORD);
   }
 
@@ -25,6 +26,9 @@ const app = new App({
 
 app.message('list devices', async ({ say }) => {
   const tplink = await loginIfRequired();
+
+  console.log('Getting Device List');
+
   const deviceList = await tplink.getDeviceList();
 
   await say({
