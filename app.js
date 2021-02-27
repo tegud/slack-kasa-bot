@@ -8,6 +8,11 @@ const icons = {
   'Off': 'red_circle',
   'Offline': 'skull'
 };
+const colours = {
+  'On': 'good',
+  'Off': 'danger',
+  'Offline': 'warning'
+};
 
 const loginIfRequired = async () => {
   if (!tplink) {
@@ -49,6 +54,7 @@ app.message('list devices', async ({ say }) => {
       const relayState = await hs100.getRelayState();
       status = relayState ? 'On' : 'Off'
     } catch(e) {
+      console.log(`Error getting relay state for ${alias}`, e.message);
       if (e.message === 'Device is offline') {
         status = 'Offline'
       }
@@ -60,7 +66,7 @@ app.message('list devices', async ({ say }) => {
       "text": `*${alias || deviceId}*: :${icons[status]}: ${status}`,
       "fallback": "Cannot manage devices",
       "callback_id": "toggle-device",
-      "color": status ? 'ok' : 'danger',
+      "color": colours[status],
       "attachment_type": "default",
       "actions": status !== 'Offline' ? [
           {
@@ -81,10 +87,25 @@ app.message('list devices', async ({ say }) => {
 });
 
 app.action({ callback_id: 'toggle-device' }, async ({ body, action, ack, say }) => {
-  console.log(body);
-  // await say(`<@${body.user.id}> clicked the button`);
+  const [deviceId, targetState] = action.value.split('::')
 
-  // Acknowledge the action after say() to exit the Lambda process
+  const tplink = await loginIfRequired();
+  const hs100 = tplink.getHS100(device.deviceId);
+
+  console.log(hs100);
+
+  hs100[targetState === 'On' ? 'powerOn' : 'powerOff']();
+
+  await say({
+    attachments: [
+      {
+        "text": `Done`,
+        "fallback": "Done",
+        "color": 'good',
+      },
+    ],
+  });
+
   await ack();
 });
 
