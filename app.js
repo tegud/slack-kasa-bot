@@ -36,39 +36,47 @@ app.message('list devices', async ({ say }) => {
 
   const deviceList = await tplink.getDeviceList();
 
-  await say({
-    "attachments": deviceList.map(async (device) => {
-      const { alias, deviceId } = device;
+  console.log(deviceList, status);
 
-      const hs100 = tplink.getHS100(deviceId);
-      let status = 'Off';
-      try {
-        const relayState = await hs100.getRelayState();
-        status = relayState ? 'On' : 'Off'
-      } catch(e) {
-        if (e.message === 'Device is offline') {
-          status = 'Offline'
-        }
+  const attachments = deviceList.map(async (device) => {
+    const { alias, deviceId } = device;
+
+    console.log(`Checking relay state for ${alias} (${deviceId})`);
+
+    const hs100 = tplink.getHS100(deviceId);
+    let status = 'Off';
+    try {
+      const relayState = await hs100.getRelayState();
+      status = relayState ? 'On' : 'Off'
+    } catch(e) {
+      if (e.message === 'Device is offline') {
+        status = 'Offline'
       }
+    }
 
-      console.log(alias, status);
+    console.log(alias, status);
 
-      return {
-        "text": `*${alias || deviceId}*: :${icons[status]}: ${status}`,
-        "fallback": "Cannot manage devices",
-        "callback_id": "toggle-device",
-        "color": status ? 'ok' : 'danger',
-        "attachment_type": "default",
-        "actions": status !== 'Offline' ? [
-            {
-                "name": "toggle-device",
-                "text": `Turn ${status === 'On' ? 'Off' : 'On'}`,
-                "type": "button",
-                "value": `${deviceId}::${status === 'On' ? 'Off' : 'On'}`,
-            }
-        ] : []
-      };
-    }),
+    return {
+      "text": `*${alias || deviceId}*: :${icons[status]}: ${status}`,
+      "fallback": "Cannot manage devices",
+      "callback_id": "toggle-device",
+      "color": status ? 'ok' : 'danger',
+      "attachment_type": "default",
+      "actions": status !== 'Offline' ? [
+          {
+              "name": "toggle-device",
+              "text": `Turn ${status === 'On' ? 'Off' : 'On'}`,
+              "type": "button",
+              "value": `${deviceId}::${status === 'On' ? 'Off' : 'On'}`,
+          }
+      ] : []
+    };
+  });
+
+  console.log(attachments);
+
+  await say({
+    attachments,
   });
 });
 
