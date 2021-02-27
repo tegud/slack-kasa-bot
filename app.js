@@ -38,7 +38,7 @@ app.message('list devices', async ({ say }) => {
 
   console.log(deviceList);
 
-  const attachments = deviceList.map(async (device) => {
+  const attachments = await deviceList.map(async (device) => {
     const { alias, deviceId } = device;
 
     console.log(`Checking relay state for ${alias} (${deviceId})`);
