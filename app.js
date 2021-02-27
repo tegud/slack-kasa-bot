@@ -28,33 +28,22 @@ app.message('list devices', async ({ say }) => {
   const deviceList = await tplink.getDeviceList();
 
   await say({
-    "callback_id": "toggle-device",
-    blocks: deviceList.flatMap(({ status, alias, deviceId }) => {
-      return [
-				{
-					"type": "section",
-					"text": {
-						"type": "mrkdwn",
-						"text": `*${alias || deviceId}*: :${status ? 'large_green_circle' : 'red_circle'}: ${status ? 'On' : 'Off'}`
-					}
-				},
-				{
-					"type": "actions",
-					"elements": [
-						{
-							"type": "button",
-							"text": {
-								"type": "plain_text",
-								"text": `Turn ${status ? 'Off' : 'On'}`
-							},
-							"value": `${deviceId}::${status ? 'Off' : 'On'}`
-						}
-					]
-				},
-				{
-					"type": "divider"
-				},
-      ];
+    "attachments": deviceList.map(({ status, alias, deviceId }) => {
+      return {
+        "text": `*${alias || deviceId}*: :${status ? 'large_green_circle' : 'red_circle'}: ${status ? 'On' : 'Off'}`,
+        "fallback": "Cannot manage devices",
+        "callback_id": "toggle-device",
+        "color": status ? 'ok' : 'danger',
+        "attachment_type": "default",
+        "actions": [
+            {
+                "name": "game",
+                "text": `Turn ${status ? 'Off' : 'On'}`,
+                "type": "button",
+                "value": `${deviceId}::${status ? 'Off' : 'On'}`,
+            }
+        ]
+      };
     }),
   });
 });
