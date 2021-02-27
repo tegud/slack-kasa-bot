@@ -86,21 +86,21 @@ app.message('list devices', async ({ say }) => {
   });
 });
 
-app.action({ callback_id: 'toggle-device' }, async ({ body, action, ack, say }) => {
+app.action({ callback_id: 'toggle-device' }, async ({ action, ack, say }) => {
   const [deviceId, targetState] = action.value.split('::')
 
   const tplink = await loginIfRequired();
-  const hs100 = tplink.getHS100(device.deviceId);
+  const hs100 = tplink.getHS100(deviceId);
 
-  console.log(hs100);
+  await hs100[targetState === 'On' ? 'powerOn' : 'powerOff']();
 
-  hs100[targetState === 'On' ? 'powerOn' : 'powerOff']();
+  const text = `Turned ${hs100.device.alias} ${targetState}`;
 
   await say({
     attachments: [
       {
-        "text": `Done`,
-        "fallback": "Done",
+        "text": text,
+        "fallback": text,
         "color": 'good',
       },
     ],
