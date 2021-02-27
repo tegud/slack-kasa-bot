@@ -30,7 +30,9 @@ app.message('list devices', async ({ say }) => {
   await say({
     "attachments": deviceList.map(device => {
       const { status, alias, deviceId } = device;
+      const hs100 = tplink.getHS100(deviceId);
       console.log(device);
+      console.log(hs100);
       return {
         "text": `*${alias || deviceId}*: :${status ? 'large_green_circle' : 'red_circle'}: ${status ? 'On' : 'Off'}`,
         "fallback": "Cannot manage devices",
