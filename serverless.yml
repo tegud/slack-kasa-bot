@@ -10,6 +10,7 @@ provider:
 functions:
   slack:
     handler: app.handler
+    timeout: 15
     events:
       - http:
           path: slack/events
