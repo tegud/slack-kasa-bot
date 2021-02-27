@@ -39,6 +39,7 @@ app.message('list devices', async ({ say }) => {
 				},
 				{
 					"type": "actions",
+          "callback_id": "toggle-device",
 					"elements": [
 						{
 							"type": "button",
@@ -58,7 +59,7 @@ app.message('list devices', async ({ say }) => {
   });
 });
 
-app.action('button_click', async ({ body, ack, say }) => {
+app.action({ callback_id: 'toggle-device' }, async ({ body, ack, say }) => {
   console.log(body);
   // await say(`<@${body.user.id}> clicked the button`);
 
