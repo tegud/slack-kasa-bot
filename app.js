@@ -28,7 +28,9 @@ app.message('list devices', async ({ say }) => {
   const deviceList = await tplink.getDeviceList();
 
   await say({
-    "attachments": deviceList.map(({ status, alias, deviceId }) => {
+    "attachments": deviceList.map(device => {
+      const { status, alias, deviceId } = device;
+      console.log(device);
       return {
         "text": `*${alias || deviceId}*: :${status ? 'large_green_circle' : 'red_circle'}: ${status ? 'On' : 'Off'}`,
         "fallback": "Cannot manage devices",
@@ -37,7 +39,7 @@ app.message('list devices', async ({ say }) => {
         "attachment_type": "default",
         "actions": [
             {
-                "name": "game",
+                "name": "toggle-device",
                 "text": `Turn ${status ? 'Off' : 'On'}`,
                 "type": "button",
                 "value": `${deviceId}::${status ? 'Off' : 'On'}`,
@@ -48,7 +50,8 @@ app.message('list devices', async ({ say }) => {
   });
 });
 
-app.action({ callback_id: 'toggle-device' }, async ({ body, ack, say }) => {
+app.action({ callback_id: 'toggle-device' }, async ({ body, action, ack, say }) => {
+  console.log(action);
   console.log(body);
   // await say(`<@${body.user.id}> clicked the button`);
 
