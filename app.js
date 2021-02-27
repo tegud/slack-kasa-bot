@@ -23,7 +23,7 @@ const app = new App({
   receiver: expressReceiver
 });
 
-app.message('list devices', async ({ message, say }) => {
+app.message('list devices', async ({ say }) => {
   const tplink = await loginIfRequired();
   const deviceList = await tplink.getDeviceList();
 
@@ -56,6 +56,14 @@ app.message('list devices', async ({ message, say }) => {
       ];
     }),
   });
+});
+
+app.action('button_click', async ({ body, ack, say }) => {
+  console.log(body);
+  await say(`<@${body.user.id}> clicked the button`);
+
+  // Acknowledge the action after say() to exit the Lambda process
+  await ack();
 });
 
 module.exports.handler = serverlessExpress({
