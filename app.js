@@ -36,7 +36,7 @@ app.message('list devices', async ({ say }) => {
 
   const deviceList = await tplink.getDeviceList();
 
-  console.log(deviceList, status);
+  console.log(deviceList);
 
   const attachments = deviceList.map(async (device) => {
     const { alias, deviceId } = device;
