@@ -87,11 +87,14 @@ app.message('list devices', async ({ say }) => {
 });
 
 app.action({ callback_id: 'toggle-device' }, async ({ action, ack, say }) => {
-  const [deviceId, targetState] = action.value.split('::')
+  const [deviceId, targetState] = action.value.split('::');
+
+  console.log(`Command received to turn ${alias} ${targetState}`);
 
   const tplink = await loginIfRequired();
   const hs100 = tplink.getHS100(deviceId);
 
+  await ack();
   await hs100[targetState === 'On' ? 'powerOn' : 'powerOff']();
 
   const text = `Turned ${hs100.device.alias} ${targetState}`;
@@ -105,8 +108,6 @@ app.action({ callback_id: 'toggle-device' }, async ({ action, ack, say }) => {
       },
     ],
   });
-
-  await ack();
 });
 
 module.exports.handler = serverlessExpress({
