@@ -28,6 +28,7 @@ app.message('list devices', async ({ say }) => {
   const deviceList = await tplink.getDeviceList();
 
   await say({
+    "callback_id": "toggle-device",
     blocks: deviceList.flatMap(({ status, alias, deviceId }) => {
       return [
 				{
@@ -39,7 +40,6 @@ app.message('list devices', async ({ say }) => {
 				},
 				{
 					"type": "actions",
-          "callback_id": "toggle-device",
 					"elements": [
 						{
 							"type": "button",
