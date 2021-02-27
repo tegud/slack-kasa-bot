@@ -89,7 +89,7 @@ app.message('list devices', async ({ say }) => {
 app.action({ callback_id: 'toggle-device' }, async ({ action, ack, say }) => {
   const [deviceId, targetState] = action.value.split('::');
 
-  console.log(`Command received to turn ${alias} ${targetState}`);
+  console.log(`Command received to turn ${deviceId} ${targetState}`);
 
   const tplink = await loginIfRequired();
   const hs100 = tplink.getHS100(deviceId);
