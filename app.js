@@ -59,14 +59,6 @@ app.message('list devices', async ({ say }) => {
   }
 });
 
-app.action({ callback_id: 'toggle-device' }, async ({ body, action, ack, say }) => {
-  const [deviceId, targetStatus] = action.value.split('::');
-  console.log(deviceId, targetStatus);
-  // await say(`<@${body.user.id}> clicked the button`);
-
-  // Acknowledge the action after say() to exit the Lambda process
-  await ack();
-});
 
 module.exports.handler = serverlessExpress({
   app: expressReceiver.app
