@@ -24,9 +24,39 @@ const app = new App({
 });
 
 app.message('list devices', async ({ say }) => {
-  console.log('HELLO WORLD')
+  const tplink = await loginIfRequired();
+  const deviceList = await tplink.getDeviceList();
+
+  await say({
+    "attachments": deviceList.map(device => {
+      const { status, alias, deviceId } = device;
+      console.log(device);
+      return {
+        "text": `*${alias || deviceId}*: :${status ? 'large_green_circle' : 'red_circle'}: ${status ? 'On' : 'Off'}`,
+        "fallback": "Cannot manage devices",
+        "callback_id": "toggle-device",
+        "color": status ? 'ok' : 'danger',
+        "attachment_type": "default",
+        "actions": [
+            {
+                "name": "toggle-device",
+                "text": `Turn ${status ? 'Off' : 'On'}`,
+                "type": "button",
+                "value": `${deviceId}::${status ? 'Off' : 'On'}`,
+            }
+        ]
+      };
+    }),
+  });
 });
 
+app.action({ callback_id: 'toggle-device' }, async ({ body, action, ack, say }) => {
+  console.log(body);
+  // await say(`<@${body.user.id}> clicked the button`);
+
+  // Acknowledge the action after say() to exit the Lambda process
+  await ack();
+});
 
 module.exports.handler = serverlessExpress({
   app: expressReceiver.app
