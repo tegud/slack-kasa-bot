@@ -5,6 +5,8 @@ provider:
   environment:
     SLACK_SIGNING_SECRET: ${env:SLACK_SIGNING_SECRET}
     SLACK_BOT_TOKEN: ${env:SLACK_BOT_TOKEN}
+    KASA_USERNAME: ${env:KASA_USERNAME}
+    KASA_PASSWORD: ${env:KASA_PASSWORD}
 functions:
   slack:
     handler: app.handler

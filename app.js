@@ -1,62 +1,63 @@
 const { App, ExpressReceiver } = require('@slack/bolt');
 const serverlessExpress = require('@vendia/serverless-express');
+const { login } = require("tplink-cloud-api");
+
+let tplink;
+
+const loginIfRequired = async () => {
+  if (!tplink) {
+    tplink = await login(process.env.KASA_USERNAME, process.env.KASA_PASSWORD);
+  }
+
+  return tplink;
+};
 
 // Initialize your custom receiver
 const expressReceiver = new ExpressReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
-  // The `processBeforeResponse` option is required for all FaaS environments.
-  // It allows Bolt methods (e.g. `app.message`) to handle a Slack request
-  // before the Bolt framework responds to the request (e.g. `ack()`). This is
-  // important because FaaS immediately terminate handlers after the response.
   processBeforeResponse: true
 });
 
-// Initializes your app with your bot token and the AWS Lambda ready receiver
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   receiver: expressReceiver
 });
 
-// Listens to incoming messages that contain "hello"
-app.message('hello', async ({ message, say }) => {
-  // say() sends a message to the channel where the event was triggered
+app.message('list devices', async ({ message, say }) => {
+  const tplink = await loginIfRequired();
+  const deviceList = await tplink.getDeviceList();
+
   await say({
-    blocks: [
-      {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": `Hey there <@${message.user}>!`
-        },
-        "accessory": {
-          "type": "button",
-          "text": {
-            "type": "plain_text",
-            "text": "Click Me"
-          },
-          "action_id": "button_click"
-        }
-      }
-    ],
-    text: `Hey there <@${message.user}>!`
+    blocks: deviceList.flatMap(({ status, alias, deviceId }) => {
+      return [
+				{
+					"type": "section",
+					"text": {
+						"type": "mrkdwn",
+						"text": `*${alias || deviceId}*: :${status ? 'large_green_circle' : 'red_circle'}: ${status ? 'On' : 'Off'}`
+					}
+				},
+				{
+					"type": "actions",
+					"elements": [
+						{
+							"type": "button",
+							"text": {
+								"type": "plain_text",
+								"text": `Turn ${status ? 'Off' : 'On'}`
+							},
+							"value": `${deviceId}::${status ? 'Off' : 'On'}`
+						}
+					]
+				},
+				{
+					"type": "divider"
+				},
+      ];
+    }),
   });
 });
 
-// Listens for an action from a button click
-app.action('button_click', async ({ body, ack, say }) => {
-  await say(`<@${body.user.id}> clicked the button`);
-
-  // Acknowledge the action after say() to exit the Lambda process
-  await ack();
-});
-
-// Listens to incoming messages that contain "goodbye"
-app.message('goodbye', async ({ message, say }) => {
-  // say() sends a message to the channel where the event was triggered
-  await say(`See ya later, <@${message.user}> :wave:`);
-});
-
-// Handle the Lambda function event
 module.exports.handler = serverlessExpress({
   app: expressReceiver.app
 });
