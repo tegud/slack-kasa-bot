@@ -27,6 +27,8 @@ app.message('list devices', async ({ say }) => {
   const tplink = await loginIfRequired();
   const deviceList = await tplink.getDeviceList();
 
+  console.log(deviceList);
+
   await say({
     "attachments": deviceList.map(device => {
       const { status, alias, deviceId } = device;
