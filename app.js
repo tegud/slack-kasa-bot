@@ -64,7 +64,7 @@ app.message('list devices', async ({ say }) => {
 
     return {
       "text": `*${alias || deviceId}*: :${icons[status]}: ${status}`,
-      "fallback": "Cannot manage devices",
+      "fallback": `*${alias || deviceId}*: :${icons[status]}: ${status}`,
       "callback_id": "toggle-device",
       "color": colours[status],
       "attachment_type": "default",
